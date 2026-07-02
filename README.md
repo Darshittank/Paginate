@@ -1,4 +1,4 @@
-# Paginate - Spell Quick. Think Quicker.
+# Paginate - Pagination UI Collection.
 
 [![GitHub stars](https://img.shields.io/github/stars/Darshittank/LexigoTrix)](https://github.com/Darshittank/Paginate/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/Darshittank/LexigoTrix)](https://github.com/Darshittank/Paginate/network)
