@@ -16,14 +16,14 @@ Well-designed pagination improves usability by making content easy to navigate w
 Each pattern is interactive, accessible, themeable, and copy-paste ready—helping you build faster while maintaining modern UI standards.
 
 ### 🎯 **Key Features**
-🔢 30 ready-to-use pagination patterns
-⚡ Fully interactive components
-🧩 Dark Light Mode
-♿ Accessibility-friendly (ARIA support)
-🎨 Easy to customize & theme
-📱 Responsive across all devices
-🧩 Works with modern UI workflows
-📋 Clean, copy-paste-ready code
+- 🔢 30 ready-to-use pagination patterns
+- ⚡ Fully interactive components
+- 🧩 Dark Light Mode
+- ♿ Accessibility-friendly (ARIA support)
+- 🎨 Easy to customize & theme
+- 📱 Responsive across all devices
+- 🧩 Works with modern UI workflows
+- 📋 Clean, copy-paste-ready code
 
 ## 📸 Preview
 
@@ -31,23 +31,23 @@ Each pattern is interactive, accessible, themeable, and copy-paste ready—helpi
 ![Preview7](assets/screenshot_7.png)
 
 📦 Use Cases
-Basic websites & blogs
-Large data tables
-Admin dashboards
-SaaS applications
-Creative UI designs
-🚀 Getting Started
-Browse the collection
-Copy your preferred pagination pattern
-Paste into your project
-Customize styles as needed
-🎯 Goal
+- Basic websites & blogs
+- Large data tables
+- Admin dashboards
+- SaaS applications
+- Creative UI designs
 
-To provide developers and designers with scalable, modern, and efficient pagination solutions that save time and improve user experience.
+🚀 Getting Started
+- Browse the collection
+- Copy your preferred pagination pattern
+- Paste into your project
+- Customize styles as needed
+
+🎯 Goal
+- To provide developers and designers with scalable, modern, and efficient pagination solutions that save time and improve user experience.
 
 🤝 Contributing
-
-Contributions are welcome! Feel free to submit new patterns, improvements, or bug fixes.
+- Contributions are welcome! Feel free to submit new patterns, improvements, or bug fixes.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white) ![JS](https://img.shields.io/badge/JS-F7DF1E?style=flat&logo=javascript&logoColor=black) ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat&logo=greensock&logoColor=white)
 
