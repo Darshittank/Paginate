@@ -7,7 +7,7 @@
 [![View Online](https://img.shields.io/badge/Play-Now-brightgreen)](https://darshittank.github.io/Paginate)
 
 ## 🎯 **Live Demo**
-👉 **[View Paginate Online Now!](https://darshittank.github.io/Paginate/)** 👈
+👉 **[View Paginate Now!](https://darshittank.github.io/Paginate/)** 👈
 
 ## 📖 **About Paginate**
 
@@ -27,7 +27,8 @@ Each pattern is interactive, accessible, themeable, and copy-paste ready—helpi
 
 ## 📸 Preview
 
-![Preview](assets/screenshot_1.png)
+![Preview6](assets/screenshot_6.png)
+![Preview7](assets/screenshot_7.png)
 
 📦 Use Cases
 Basic websites & blogs
