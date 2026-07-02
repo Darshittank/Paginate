@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paginate — Premium Pagination Component Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ============================================================
+   PAGINATE — Premium Pagination Component Library
+   Single-file build. Vanilla HTML/CSS/JS + GSAP.
+   ============================================================ */
+
+/* ---------- THEME TOKENS ---------- */
+:root{
+  --bg-1:#F6F5FC; --bg-2:#FDEFF3; --bg-3:#EAF3FF;
+  --accent:#6D5DFC; --accent-2:#FF6FA5; --accent-3:#37D9C4;
+  --text:#1C1B29; --text-soft:#5B5770; --text-faint:#8B87A3;
+  --glass:rgba(255,255,255,0.55); --glass-strong:rgba(255,255,255,0.78);
+  --glass-border:rgba(255,255,255,0.65);
+  --card-bg:rgba(255,255,255,0.62);
+  --shadow-color:rgba(109,93,252,0.16);
+  --shadow-soft:0 10px 30px rgba(109,93,252,0.12);
+  --shadow-strong:0 20px 50px rgba(109,93,252,0.22);
+  --code-bg:#1e1b2e; --code-text:#e4e1f5;
+  --success:#31C48D;
+  --radius-lg:24px; --radius-md:16px; --radius-sm:10px;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html.dark{
+  --bg-1:#0A0A16; --bg-2:#181231; --bg-3:#0F1A2E;
+  --accent:#9C8CFF; --accent-2:#FF86B8; --accent-3:#48E9D3;
+  --text:#EDEBFF; --text-soft:#ADA9CC; --text-faint:#736F94;
+  --glass:rgba(255,255,255,0.055); --glass-strong:rgba(255,255,255,0.09);
+  --glass-border:rgba(255,255,255,0.12);
+  --card-bg:rgba(24,20,45,0.55);
+  --shadow-color:rgba(0,0,0,0.55);
+  --shadow-soft:0 10px 30px rgba(0,0,0,0.35);
+  --shadow-strong:0 20px 60px rgba(0,0,0,0.5);
+  --code-bg:#0d0b1a; --code-text:#d8d4f0;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:var(--font-body);
+  color:var(--text);
+  background:linear-gradient(135deg,var(--bg-1),var(--bg-2) 50%,var(--bg-3));
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background 0.6s ease, color 0.4s ease;
+  position:relative;
+}
+::selection{background:var(--accent);color:#fff;}
+a{color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+}
+
+/* ---------- BACKDROP LAYERS ---------- */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.noise-overlay{
+  position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.35;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.blobs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+.blob{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;}
+.blob-a{width:420px;height:420px;background:radial-gradient(circle,var(--accent),transparent 70%);top:-120px;left:-100px;}
+.blob-b{width:380px;height:380px;background:radial-gradient(circle,var(--accent-2),transparent 70%);top:20%;right:-140px;}
+.blob-c{width:340px;height:340px;background:radial-gradient(circle,var(--accent-3),transparent 70%);bottom:-100px;left:30%;}
+
+/* ---------- LAYOUT SHELL ---------- */
+.shell{position:relative;z-index:2;max-width:1320px;margin:0 auto;padding:0 28px;}
+
+/* ---------- NAVBAR ---------- */
+.navbar{position:sticky;top:0;z-index:50;backdrop-filter:blur(18px) saturate(160%);background:var(--glass);border-bottom:1px solid var(--glass-border);}
+.navbar-inner{max-width:1320px;margin:0 auto;padding:14px 28px;display:flex;align-items:center;gap:20px;}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:700;font-size:20px;letter-spacing:-.02em;white-space:nowrap;}
+.logo-mark{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;box-shadow:var(--shadow-soft);}
+.nav-search{flex:1;max-width:420px;position:relative;margin-left:auto;}
+.nav-search input{width:100%;padding:10px 16px 10px 38px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass-strong);color:var(--text);font-size:14px;transition:box-shadow .3s,border-color .3s;}
+.nav-search input:focus{box-shadow:0 0 0 3px var(--shadow-color);border-color:var(--accent);}
+.nav-search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--text-faint);}
+.theme-toggle{width:42px;height:42px;border-radius:50%;border:1px solid var(--glass-border);background:var(--glass-strong);display:flex;align-items:center;justify-content:center;color:var(--text);transition:transform .4s;flex-shrink:0;}
+.theme-toggle:hover{transform:scale(1.08) rotate(-8deg);}
+.theme-toggle svg{width:19px;height:19px;}
+.nav-download{display:flex;gap:8px;flex-shrink:0;}
+.btn-ghost{padding:9px 15px;border-radius:999px;border:1px solid var(--glass-border);background:transparent;color:var(--text-soft);font-size:13px;font-weight:500;transition:.25s;}
+.btn-ghost:hover{background:var(--glass-strong);color:var(--text);}
+
+/* ---------- HERO ---------- */
+.hero{position:relative;padding:88px 0 56px;text-align:center;overflow:hidden;}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--glass-strong);border:1px solid var(--glass-border);font-size:12.5px;color:var(--text-soft);font-weight:600;letter-spacing:.03em;margin-bottom:22px;}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent-3);box-shadow:0 0 8px var(--accent-3);}
+.hero h1{font-family:var(--font-display);font-size:clamp(38px,6vw,68px);line-height:1.04;letter-spacing:-.03em;margin:0 0 18px;font-weight:700;}
+.hero h1 span{background:linear-gradient(120deg,var(--accent),var(--accent-2) 60%,var(--accent-3));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero p.sub{max-width:560px;margin:0 auto 34px;color:var(--text-soft);font-size:17px;line-height:1.6;}
+.hero-actions{display:flex;gap:14px;justify-content:center;margin-bottom:52px;flex-wrap:wrap;}
+.btn-primary{position:relative;padding:14px 28px;border-radius:14px;border:none;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#fff;font-weight:600;font-size:15px;box-shadow:var(--shadow-strong);overflow:hidden;}
+.btn-secondary{padding:14px 26px;border-radius:14px;border:1px solid var(--glass-border);background:var(--glass-strong);color:var(--text);font-weight:600;font-size:15px;}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);transform:scale(0);pointer-events:none;}
+.stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+.stat-card{padding:18px 26px;border-radius:var(--radius-md);background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(14px);min-width:150px;box-shadow:var(--shadow-soft);}
+.stat-card .num{font-family:var(--font-display);font-size:26px;font-weight:700;color:var(--accent);}
+.stat-card .label{font-size:12.5px;color:var(--text-faint);margin-top:2px;font-weight:500;}
+
+/* ---------- TOOLBAR ---------- */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:0 0 44px;}
+.chip{padding:9px 17px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text-soft);font-size:13.5px;font-weight:600;transition:.25s;}
+.chip:hover{border-color:var(--accent);color:var(--text);}
+.chip.active{background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:var(--shadow-soft);}
+
+/* ---------- GALLERY GRID ---------- */
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:22px;padding-bottom:100px;}
+.card{background:var(--card-bg);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:22px;backdrop-filter:blur(16px) saturate(150%);box-shadow:var(--shadow-soft);transition:transform .35s cubic-bezier(.2,.9,.3,1), box-shadow .35s;position:relative;display:flex;flex-direction:column;gap:14px;}
+.card:hover{transform:translateY(-6px);box-shadow:var(--shadow-strong);}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.card-head h3{font-family:var(--font-display);font-size:16.5px;margin:0 0 4px;letter-spacing:-.01em;}
+.card-head p{margin:0;font-size:12.8px;color:var(--text-faint);line-height:1.5;}
+.card-badge{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);background:var(--glass-strong);border:1px solid var(--glass-border);padding:4px 9px;border-radius:999px;flex-shrink:0;}
+.preview-box{background:rgba(255,255,255,0.03);border:1px dashed var(--glass-border);border-radius:var(--radius-md);padding:22px 12px;display:flex;align-items:center;justify-content:center;min-height:78px;overflow-x:auto;}
+.card-actions{display:flex;flex-wrap:wrap;gap:6px;}
+.copy-btn{flex:1;min-width:64px;padding:8px 10px;font-size:11.5px;font-weight:600;border-radius:9px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text-soft);transition:.2s;display:flex;align-items:center;justify-content:center;gap:5px;}
+.copy-btn:hover{background:var(--accent);color:#fff;border-color:transparent;}
+.copy-btn.full{flex-basis:100%;background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#fff;border:none;}
+.expand-btn{width:100%;padding:9px;font-size:12px;font-weight:600;border-radius:9px;border:1px dashed var(--glass-border);background:transparent;color:var(--text-faint);}
+.expand-btn:hover{color:var(--text);}
+.code-preview{display:none;background:var(--code-bg);border-radius:var(--radius-sm);padding:14px;max-height:260px;overflow:auto;}
+.code-preview.open{display:block;}
+.code-preview pre{margin:0;font-family:var(--font-mono);font-size:11.6px;line-height:1.6;color:var(--code-text);white-space:pre;}
+.tok-tag{color:#ff86b8;} .tok-attr{color:#9c8cff;} .tok-str{color:#48e9d3;} .tok-comment{color:#736f94;font-style:italic;} .tok-kw{color:#ffb454;} .tok-punc{color:#736f94;}
+
+/* ---------- FOOTER ---------- */
+footer{position:relative;z-index:2;border-top:1px solid var(--glass-border);padding:40px 28px;text-align:center;color:var(--text-faint);font-size:13px;}
+footer .foot-links{display:flex;gap:16px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}
+footer .foot-links button{background:none;border:none;color:var(--text-soft);font-size:13px;text-decoration:underline;}
+
+/* ---------- TOAST ---------- */
+.toast-container{position:fixed;top:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:10px;}
+.toast{display:flex;align-items:center;gap:10px;padding:12px 18px;border-radius:14px;background:var(--glass-strong);backdrop-filter:blur(16px);border:1px solid var(--glass-border);box-shadow:var(--shadow-strong);font-size:13.5px;font-weight:600;color:var(--text);}
+.toast .tick{width:20px;height:20px;border-radius:50%;background:var(--success);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;}
+
+/* ============================================================
+   PAGINATION CORE (shared structure)
+   ============================================================ */
+.pagination{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:var(--font-body);}
+.pg-btn{min-width:34px;height:34px;padding:0 10px;border-radius:9px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text-soft);font-size:13.5px;font-weight:600;display:flex;align-items:center;justify-content:center;transition:.2s;}
+.pg-btn:hover:not(:disabled){transform:translateY(-2px);border-color:var(--accent);color:var(--text);}
+.pg-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.pg-btn.active{background:linear-gradient(120deg,var(--accent),var(--accent-2));color:#fff;border-color:transparent;box-shadow:0 6px 16px var(--shadow-color);}
+.pg-ellipsis{min-width:28px;text-align:center;color:var(--text-faint);font-size:13px;}
+.pg-meta{font-size:12.5px;color:var(--text-faint);margin:0 8px;}
+
+/* -- skin: standard -- */
+.skin-standard .pg-btn{border-radius:8px;}
+/* -- skin: rounded -- */
+.skin-rounded .pg-btn{border-radius:16px;}
+/* -- skin: square -- */
+.skin-square .pg-btn{border-radius:0;box-shadow:0 2px 6px var(--shadow-color);}
+/* -- skin: pill -- */
+.skin-pill .pg-btn{border-radius:999px;padding:0 14px;}
+.skin-pill .pg-btn.active{box-shadow:0 8px 20px var(--shadow-color);}
+/* -- skin: outline -- */
+.skin-outline .pg-btn{background:transparent;border:1.5px solid var(--glass-border);}
+.skin-outline .pg-btn.active{background:transparent;border-color:var(--accent);color:var(--accent);}
+/* -- skin: filled -- */
+.skin-filled .pg-btn{background:var(--glass-strong);border-color:transparent;}
+.skin-filled .pg-btn.active{background:var(--accent);}
+/* -- skin: minimal -- */
+.skin-minimal .pg-btn{background:transparent;border-color:transparent;}
+.skin-minimal .pg-btn.active{background:transparent;color:var(--accent);border-bottom:2px solid var(--accent);border-radius:2px;}
+/* -- skin: elevated -- */
+.skin-elevated .pg-btn{box-shadow:0 6px 14px var(--shadow-color);border-color:transparent;}
+.skin-elevated .pg-btn:hover:not(:disabled){box-shadow:0 10px 20px var(--shadow-color);}
+/* -- skin: gradient -- */
+.skin-gradient .pg-btn.active{background:linear-gradient(120deg,var(--accent),var(--accent-3));animation:gradShift 3s ease infinite;}
+@keyframes gradShift{0%,100%{filter:hue-rotate(0deg);}50%{filter:hue-rotate(25deg);}}
+/* -- skin: glass -- */
+.skin-glass .pg-btn{background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border-color:rgba(255,255,255,.25);}
+.skin-glass .pg-btn.active{background:rgba(255,255,255,.28);}
+/* -- skin: neumorphism -- */
+.skin-neumorphism{background:#e8e6f3;padding:10px;border-radius:16px;}
+html.dark .skin-neumorphism{background:#1b1830;}
+.skin-neumorphism .pg-btn{background:#e8e6f3;border:none;box-shadow:5px 5px 10px rgba(0,0,0,.12),-5px -5px 10px rgba(255,255,255,.7);}
+html.dark .skin-neumorphism .pg-btn{background:#1b1830;box-shadow:5px 5px 10px rgba(0,0,0,.5),-5px -5px 10px rgba(255,255,255,.04);}
+.skin-neumorphism .pg-btn.active{box-shadow:inset 3px 3px 8px rgba(0,0,0,.15),inset -3px -3px 8px rgba(255,255,255,.6);color:var(--accent);background:#e8e6f3;}
+/* -- skin: cyberpunk -- */
+.skin-cyberpunk{background:#0a0014;padding:10px;border-radius:6px;}
+.skin-cyberpunk .pg-btn{background:transparent;border:1px solid #ff2ec4;color:#ff2ec4;border-radius:2px;text-shadow:0 0 6px #ff2ec4;box-shadow:0 0 10px rgba(255,46,196,.3) inset;}
+.skin-cyberpunk .pg-btn.active{background:#00fff2;color:#0a0014;border-color:#00fff2;box-shadow:0 0 16px #00fff2;text-shadow:none;}
+/* -- skin: ios -- */
+.skin-ios{background:rgba(120,120,128,.14);padding:4px;border-radius:10px;gap:2px;}
+.skin-ios .pg-btn{border:none;background:transparent;border-radius:8px;color:var(--text-soft);}
+.skin-ios .pg-btn.active{background:var(--card-bg);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.2);}
+/* -- dashboard skins -- */
+.skin-saas,.skin-analytics,.skin-crm,.skin-admin,.skin-records{align-items:center;}
+.skin-saas .pg-btn.active{background:var(--accent);}
+.skin-analytics{background:rgba(0,0,0,.15);padding:8px 10px;border-radius:10px;}
+.skin-analytics .pg-btn{background:transparent;border-color:var(--glass-border);color:var(--text-soft);}
+.skin-analytics .pg-btn.active{background:var(--accent-3);color:#062;}
+.skin-crm .pg-btn.active{background:#FF8A3D;}
+.skin-admin .pg-btn{border-radius:6px;}
+.skin-records .pg-btn.active{background:#2FBF71;}
+
+/* -- compact / meta types -- */
+.pg-compact{display:inline-flex;align-items:center;gap:10px;padding:6px 8px;border-radius:999px;background:var(--glass);border:1px solid var(--glass-border);}
+.pg-compact .pg-meta{margin:0;}
+
+/* -- jump -- */
+.pg-jump-input{width:52px;height:34px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text);text-align:center;font-size:13px;}
+.pg-jump-go{height:34px;padding:0 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-size:12.5px;font-weight:600;}
+
+/* -- expandable -- */
+.pg-more-list{display:inline-flex;gap:6px;overflow:hidden;max-width:0;transition:max-width .4s ease;vertical-align:middle;}
+.pg-more-list.open{max-width:400px;}
+
+/* -- alphabet / roman / leadingzero share numbered classes -- */
+
+/* -- stepper -- */
+.pg-stepper{display:flex;align-items:center;}
+.step-item{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;}
+.step-circle{width:32px;height:32px;border-radius:50%;border:2px solid var(--glass-border);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:700;color:var(--text-faint);background:var(--glass);transition:.25s;}
+.step-item.done .step-circle{background:var(--accent);border-color:var(--accent);color:#fff;}
+.step-item.active .step-circle{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--shadow-color);}
+.step-label{font-size:10.5px;color:var(--text-faint);white-space:nowrap;}
+.step-line{width:34px;height:2px;background:var(--glass-border);margin:0 2px 20px;}
+.step-line.done{background:var(--accent);}
+
+/* -- timeline -- */
+.pg-timeline{display:flex;align-items:center;position:relative;padding:14px 6px;}
+.tl-track{position:absolute;left:14px;right:14px;top:24px;height:2px;background:var(--glass-border);}
+.tl-item{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;z-index:1;}
+.tl-dot{width:12px;height:12px;border-radius:50%;background:var(--glass-border);border:2px solid var(--card-bg);transition:.25s;}
+.tl-item.active .tl-dot{background:var(--accent-2);width:16px;height:16px;box-shadow:0 0 0 4px var(--shadow-color);}
+.tl-label{font-size:10px;color:var(--text-faint);}
+
+/* -- dot indicator -- */
+.pg-dots{display:flex;align-items:center;gap:8px;}
+.dot-item{width:9px;height:9px;border-radius:50%;background:var(--glass-border);border:none;padding:0;transition:.25s;}
+.dot-item.active{width:22px;border-radius:5px;background:linear-gradient(120deg,var(--accent),var(--accent-2));}
+
+/* -- table footer / dashboard style -- */
+.pg-tablefooter{display:flex;align-items:center;justify-content:space-between;gap:16px;width:100%;flex-wrap:wrap;}
+.tf-info{font-size:12.5px;color:var(--text-faint);}
+.tf-info b{color:var(--text);}
+.tf-select{padding:6px 10px;border-radius:8px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text);font-size:12px;}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width:720px){
+  .navbar-inner{flex-wrap:wrap;}
+  .nav-search{order:3;flex-basis:100%;margin-left:0;}
+  .gallery{grid-template-columns:1fr;}
+  .hero{padding:64px 0 40px;}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+<div class="noise-overlay"></div>
+<div class="blobs"><div class="blob blob-a" id="blobA"></div><div class="blob blob-b" id="blobB"></div><div class="blob blob-c" id="blobC"></div></div>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <div class="logo"><span class="logo-mark">P</span> Paginate</div>
+    <div class="nav-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="Search components…" aria-label="Search components">
+    </div>
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/><circle cx="12" cy="12" r="4"/></svg>
+    </button>
+    <div class="nav-download">
+      <button class="btn-ghost" id="dlReadme">README</button>
+      <button class="btn-ghost" id="dlLicense">LICENSE</button>
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+  <header class="hero">
+    <div class="eyebrow"><span class="dot"></span> Vanilla JS · GSAP · Zero Dependencies</div>
+    <h1 id="heroTitle">Pagination, <span>designed properly.</span></h1>
+    <p class="sub">30 production-ready pagination patterns — basic, large-dataset, dashboard and creative — each fully interactive, accessible, themeable, and copy-paste ready.</p>
+    <div class="hero-actions">
+      <button class="btn-primary rippleable" id="ctaBrowse">Browse components</button>
+      <button class="btn-secondary rippleable" id="ctaRandom">Show me a random one</button>
+    </div>
+    <div class="stats" id="statsRow">
+      <div class="stat-card"><div class="num" data-count="30">0</div><div class="label">Components</div></div>
+      <div class="stat-card"><div class="num" data-count="100">0</div><div class="label">% Responsive</div></div>
+      <div class="stat-card"><div class="num" data-count="2">0</div><div class="label">Themes (Light/Dark)</div></div>
+      <div class="stat-card"><div class="num" data-count="60">0</div><div class="label">FPS Background</div></div>
+      <div class="stat-card"><div class="num" data-count="100">0</div><div class="label">% Accessible</div></div>
+    </div>
+  </header>
+
+  <div class="toolbar" id="filterBar"></div>
+
+  <main class="gallery" id="gallery"></main>
+</div>
+
+<footer>
+  <div class="foot-links">
+    <button id="dlReadme2">Download README</button>
+    <button id="dlLicense2">Download LICENSE</button>
+    <span>MIT Licensed</span>
+  </div>
+  Built as a single self-contained HTML file — no build step, no framework.
+</footer>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================================
+   1. BACKGROUND CANVAS — particle network + cursor repulsion
+   ============================================================ */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let w, h, particles = [];
+  const mouse = {x:-9999, y:-9999};
+  const COUNT = 140;
+
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function isDark(){ return document.documentElement.classList.contains('dark'); }
+
+  function makeParticles(){
+    particles = [];
+    for(let i=0;i<COUNT;i++){
+      particles.push({
+        x:Math.random()*w, y:Math.random()*h,
+        vx:(Math.random()-0.5)*0.35, vy:(Math.random()-0.5)*0.35,
+        r:Math.random()*1.6+0.6
+      });
+    }
+  }
+  makeParticles();
+
+  window.addEventListener('mousemove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
+  window.addEventListener('mouseleave', ()=>{ mouse.x=-9999; mouse.y=-9999; });
+
+  function tick(){
+    ctx.clearRect(0,0,w,h);
+    const dotColor = isDark() ? 'rgba(180,170,255,0.55)' : 'rgba(90,70,200,0.45)';
+    const lineColor = isDark() ? 'rgba(140,120,255,' : 'rgba(109,93,252,';
+
+    for(const p of particles){
+      const dx = p.x-mouse.x, dy = p.y-mouse.y;
+      const dist2 = dx*dx+dy*dy;
+      if(dist2 < 14000){
+        const dist = Math.sqrt(dist2)||1;
+        const force = (120-dist)/120;
+        p.x += (dx/dist)*force*2.2;
+        p.y += (dy/dist)*force*2.2;
+      }
+      p.x += p.vx; p.y += p.vy;
+      if(p.x<0) p.x=w; if(p.x>w) p.x=0;
+      if(p.y<0) p.y=h; if(p.y>h) p.y=0;
+    }
+    for(let i=0;i<particles.length;i++){
+      const a = particles[i];
+      ctx.beginPath();
+      ctx.arc(a.x,a.y,a.r,0,Math.PI*2);
+      ctx.fillStyle = dotColor;
+      ctx.fill();
+      for(let j=i+1;j<particles.length;j++){
+        const b = particles[j];
+        const dx=a.x-b.x, dy=a.y-b.y;
+        const d2 = dx*dx+dy*dy;
+        if(d2<9000){
+          const alpha = 1 - d2/9000;
+          ctx.strokeStyle = lineColor+(alpha*0.5)+')';
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+/* ============================================================
+   2. THEME TOGGLE (persisted, animated)
+   ============================================================ */
+(function(){
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  const saved = localStorage.getItem('paginate-theme');
+  if(saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)){
+    root.classList.add('dark');
+  }
+  toggle.addEventListener('click', ()=>{
+    root.classList.toggle('dark');
+    localStorage.setItem('paginate-theme', root.classList.contains('dark') ? 'dark' : 'light');
+    gsap.fromTo('#themeIcon', {rotate:0, scale:1}, {rotate:180, scale:1.25, duration:.5, ease:'back.out(2)', yoyo:true});
+  });
+})();
+
+/* ============================================================
+   3. GSAP — hero entrance, blobs, magnetic buttons, ripple, counters
+   ============================================================ */
+window.addEventListener('DOMContentLoaded', ()=>{
+  gsap.from('.eyebrow', {y:-16, opacity:0, duration:.7, ease:'power3.out'});
+  gsap.from('#heroTitle', {y:26, opacity:0, duration:.8, delay:.08, ease:'power3.out'});
+  gsap.from('.hero p.sub', {y:20, opacity:0, duration:.8, delay:.16, ease:'power3.out'});
+  gsap.from('.hero-actions .rippleable', {y:16, opacity:0, duration:.6, delay:.26, stagger:.08, ease:'power3.out'});
+  gsap.from('.stat-card', {y:24, opacity:0, duration:.7, delay:.36, stagger:.07, ease:'power3.out'});
+
+  gsap.to('#blobA', {x:60, y:40, duration:9, repeat:-1, yoyo:true, ease:'sine.inOut'});
+  gsap.to('#blobB', {x:-50, y:60, duration:11, repeat:-1, yoyo:true, ease:'sine.inOut'});
+  gsap.to('#blobC', {x:40, y:-50, duration:10, repeat:-1, yoyo:true, ease:'sine.inOut'});
+
+  document.querySelectorAll('.num[data-count]').forEach(el=>{
+    const target = +el.dataset.count;
+    gsap.to(el, {
+      innerText: target, duration: 1.6, delay:.4, ease:'power2.out', snap:{innerText:1},
+      onUpdate(){ el.innerText = Math.round(el.innerText) + (target===100 ? '' : '+'); },
+      onComplete(){ el.innerText = target + (target===100 ? '%' : '+'); }
+    });
+  });
+
+  document.querySelectorAll('.rippleable').forEach(btn=>{
+    btn.style.position='relative'; btn.style.overflow='hidden';
+    btn.addEventListener('click', e=>{
+      const rect = btn.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      ripple.className='ripple';
+      const size = Math.max(rect.width, rect.height)*1.8;
+      ripple.style.width = ripple.style.height = size+'px';
+      ripple.style.left = (e.clientX-rect.left-size/2)+'px';
+      ripple.style.top = (e.clientY-rect.top-size/2)+'px';
+      btn.appendChild(ripple);
+      gsap.to(ripple, {scale:1, opacity:0, duration:.6, ease:'power2.out', onComplete(){ ripple.remove(); }});
+    });
+    btn.addEventListener('mousemove', e=>{
+      const rect = btn.getBoundingClientRect();
+      gsap.to(btn, {x:(e.clientX-rect.left-rect.width/2)*0.15, y:(e.clientY-rect.top-rect.height/2)*0.3, duration:.3});
+    });
+    btn.addEventListener('mouseleave', ()=> gsap.to(btn, {x:0,y:0,duration:.4,ease:'elastic.out(1,0.5)'}));
+  });
+
+  document.getElementById('ctaBrowse').addEventListener('click', ()=>{
+    document.getElementById('gallery').scrollIntoView({behavior:'smooth', block:'start'});
+  });
+  document.getElementById('ctaRandom').addEventListener('click', ()=>{
+    const cards = document.querySelectorAll('.card');
+    const pick = cards[Math.floor(Math.random()*cards.length)];
+    pick.scrollIntoView({behavior:'smooth', block:'center'});
+    gsap.fromTo(pick, {boxShadow:'0 0 0 4px var(--accent)'}, {boxShadow:'var(--shadow-soft)', duration:1.2});
+  });
+});
+
+/* ============================================================
+   4. TOASTS
+   ============================================================ */
+function showToast(message){
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className='toast';
+  toast.innerHTML = '<span class="tick">✓</span><span>'+message+'</span>';
+  container.appendChild(toast);
+  gsap.fromTo(toast, {x:60, opacity:0}, {x:0, opacity:1, duration:.45, ease:'back.out(1.7)'});
+  setTimeout(()=>{
+    gsap.to(toast, {x:60, opacity:0, duration:.35, ease:'power2.in', onComplete(){ toast.remove(); }});
+  }, 2400);
+}
+
+function copyText(text, label){
+  const doCopy = ()=>{
+    navigator.clipboard.writeText(text).then(()=> showToast((label||'Code')+' copied to clipboard')).catch(()=>{
+      fallbackCopy(text); showToast((label||'Code')+' copied to clipboard');
+    });
+  };
+  if(navigator.clipboard && navigator.clipboard.writeText){ doCopy(); }
+  else { fallbackCopy(text); showToast((label||'Code')+' copied to clipboard'); }
+}
+function fallbackCopy(text){
+  const ta = document.createElement('textarea');
+  ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); }catch(e){}
+  ta.remove();
+}
+
+function downloadBlob(filename, content, type){
+  const blob = new Blob([content], {type: type||'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ============================================================
+   5. SYNTAX HIGHLIGHT (regex-based, CSS-only colors)
+   ============================================================ */
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function highlight(code, lang){
+  let src = escapeHtml(code);
+  if(lang==='html'){
+    src = src.replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="tok-comment">$1</span>');
+    src = src.replace(/(&lt;\/?)([a-zA-Z0-9\-]+)/g, '$1<span class="tok-tag">$2</span>');
+    src = src.replace(/([a-zA-Z\-]+)(=)(&quot;[^&]*?&quot;)/g, '<span class="tok-attr">$1</span>$2<span class="tok-str">$3</span>');
+  } else if(lang==='css'){
+    src = src.replace(/(\/\*[\s\S]*?\*\/)/g, '<span class="tok-comment">$1</span>');
+    src = src.replace(/([.#]?[a-zA-Z0-9\-_:&,.\s>]+)(\{)/g, '<span class="tok-tag">$1</span>$2');
+    src = src.replace(/([a-zA-Z\-]+)(\s*:\s*)/g, '<span class="tok-attr">$1</span>$2');
+  } else if(lang==='js'){
+    src = src.replace(/(\/\/.*)/g, '<span class="tok-comment">$1</span>');
+    src = src.replace(/\b(function|const|let|var|return|if|else|for|while|new|class|this|true|false|null)\b/g, '<span class="tok-kw">$1</span>');
+    src = src.replace(/('.*?'|`.*?`)/g, '<span class="tok-str">$1</span>');
+  }
+  return src;
+}
+
+/* ============================================================
+   6. PAGINATION ENGINE
+   ============================================================ */
+function toRoman(num){
+  const map=[[1000,'M'],[900,'CM'],[500,'D'],[400,'CD'],[100,'C'],[90,'XC'],[50,'L'],[40,'XL'],[10,'X'],[9,'IX'],[5,'V'],[4,'IV'],[1,'I']];
+  let res=''; for(const [v,s] of map){ while(num>=v){ res+=s; num-=v; } } return res;
+}
+function toAlpha(num){ return String.fromCharCode(64+num); }
+function leadZero(num,total){ return String(num).padStart(String(total).length+1,'0'); }
+
+function getPageList(current, total, delta, edge){
+  delta = delta||1; edge = edge||1;
+  const range=[];
+  for(let i=1;i<=total;i++){
+    if(i<=edge || i>total-edge || (i>=current-delta && i<=current+delta)) range.push(i);
+    else if(range[range.length-1] !== '...') range.push('...');
+  }
+  return range;
+}
+
+function labelFor(cfg, n){
+  if(cfg.labelType==='roman') return toRoman(n);
+  if(cfg.labelType==='alpha') return toAlpha(n);
+  if(cfg.labelType==='leadzero') return leadZero(n, cfg.total);
+  return String(n);
+}
+
+function makeBtn(text, {active, disabled, aria, onClick, extraClass}={}){
+  const b = document.createElement('button');
+  b.className = 'pg-btn'+(active?' active':'')+(extraClass?' '+extraClass:'');
+  b.innerHTML = text;
+  b.setAttribute('aria-label', aria||text);
+  if(active) b.setAttribute('aria-current','page');
+  if(disabled) b.disabled = true;
+  if(onClick && !disabled) b.addEventListener('click', onClick);
+  return b;
+}
+
+/* Renders a nav element for a given component config. Mutates cfg.current on interaction. */
+function renderPagination(cfg){
+  const nav = document.createElement('nav');
+  nav.className = 'pagination skin-'+cfg.skin;
+  nav.setAttribute('aria-label', cfg.name+' pagination');
+  nav.tabIndex = -1;
+
+  const rerender = ()=>{
+    const fresh = renderPagination(cfg);
+    nav.replaceWith(fresh);
+    fresh.focus();
+  };
+  const goTo = (n)=>{ cfg.current = Math.max(1, Math.min(cfg.total, n)); rerender(); };
+
+  const prev = ()=>makeBtn('‹', {disabled:cfg.current===1, aria:'Previous page', onClick:()=>goTo(cfg.current-1)});
+  const next = ()=>makeBtn('›', {disabled:cfg.current===cfg.total, aria:'Next page', onClick:()=>goTo(cfg.current+1)});
+  const first = ()=>makeBtn('«', {disabled:cfg.current===1, aria:'First page', onClick:()=>goTo(1)});
+  const last = ()=>makeBtn('»', {disabled:cfg.current===cfg.total, aria:'Last page', onClick:()=>goTo(cfg.total)});
+
+  function appendPageButtons(list){
+    list.forEach(item=>{
+      if(item==='...'){
+        const sp = document.createElement('span');
+        sp.className='pg-ellipsis'; sp.textContent='···'; sp.setAttribute('aria-hidden','true');
+        nav.appendChild(sp);
+      } else {
+        nav.appendChild(makeBtn(labelFor(cfg,item), {active:item===cfg.current, aria:'Page '+item, onClick:()=>goTo(item)}));
+      }
+    });
+  }
+
+  switch(cfg.type){
+    case 'numbered': {
+      nav.appendChild(prev());
+      appendPageButtons(getPageList(cfg.current, cfg.total, 1, cfg.total<=7?cfg.total:1));
+      nav.appendChild(next());
+      break;
+    }
+    case 'prevnext': {
+      nav.appendChild(prev());
+      const meta = document.createElement('span'); meta.className='pg-meta'; meta.textContent='Page '+cfg.current+' of '+cfg.total;
+      nav.appendChild(meta);
+      nav.appendChild(next());
+      break;
+    }
+    case 'firstlast': {
+      nav.appendChild(first());
+      nav.appendChild(prev());
+      appendPageButtons(getPageList(cfg.current, cfg.total, 1, 1));
+      nav.appendChild(next());
+      nav.appendChild(last());
+      break;
+    }
+    case 'ellipsis': {
+      nav.appendChild(prev());
+      appendPageButtons(getPageList(cfg.current, cfg.total, 1, 1));
+      nav.appendChild(next());
+      break;
+    }
+    case 'doubleellipsis': {
+      nav.appendChild(prev());
+      appendPageButtons(getPageList(cfg.current, cfg.total, 1, 2));
+      nav.appendChild(next());
+      break;
+    }
+    case 'jump': {
+      nav.appendChild(prev());
+      appendPageButtons(getPageList(cfg.current, cfg.total, 1, 1));
+      nav.appendChild(next());
+      const input = document.createElement('input');
+      input.type='number'; input.min=1; input.max=cfg.total; input.value=cfg.current;
+      input.className='pg-jump-input'; input.setAttribute('aria-label','Jump to page number');
+      const go = document.createElement('button');
+      go.className='pg-jump-go'; go.textContent='Go';
+      go.addEventListener('click', ()=>goTo(parseInt(input.value,10)||1));
+      input.addEventListener('keydown', e=>{ if(e.key==='Enter') goTo(parseInt(input.value,10)||1); });
+      nav.appendChild(input); nav.appendChild(go);
+      break;
+    }
+    case 'skip10': {
+      nav.appendChild(makeBtn('«10', {disabled:cfg.current<=10, aria:'Back 10 pages', onClick:()=>goTo(cfg.current-10)}));
+      nav.appendChild(prev());
+      const meta = document.createElement('span'); meta.className='pg-meta'; meta.textContent=cfg.current+' / '+cfg.total;
+      nav.appendChild(meta);
+      nav.appendChild(next());
+      nav.appendChild(makeBtn('10»', {disabled:cfg.current>cfg.total-10, aria:'Forward 10 pages', onClick:()=>goTo(cfg.current+10)}));
+      break;
+    }
+    case 'compact': {
+      const wrap = document.createElement('div'); wrap.className='pg-compact';
+      wrap.appendChild(prev());
+      const meta = document.createElement('span'); meta.className='pg-meta'; meta.textContent='Page '+cfg.current+' of '+cfg.total;
+      wrap.appendChild(meta);
+      wrap.appendChild(next());
+      nav.appendChild(wrap);
+      break;
+    }
+    case 'expandable': {
+      nav.appendChild(prev());
+      nav.appendChild(makeBtn(String(cfg.current), {active:true, aria:'Current page'}));
+      const moreWrap = document.createElement('span'); moreWrap.className='pg-more-list'+(cfg.expanded?' open':'');
+      if(cfg.expanded){
+        getPageList(cfg.current, cfg.total, 2, 1).forEach(item=>{
+          if(item==='...'){ const s=document.createElement('span'); s.className='pg-ellipsis'; s.textContent='···'; moreWrap.appendChild(s); }
+          else if(item!==cfg.current){ moreWrap.appendChild(makeBtn(String(item), {aria:'Page '+item, onClick:()=>goTo(item)})); }
+        });
+      }
+      nav.appendChild(moreWrap);
+      const toggleBtn = makeBtn(cfg.expanded?'Less':'More…', {aria:'Toggle more pages', onClick:(e)=>{ e.stopPropagation(); cfg.expanded=!cfg.expanded; rerender(); }});
+      nav.appendChild(toggleBtn);
+      nav.appendChild(next());
+      break;
+    }
+    case 'alphabet': case 'roman': case 'leadzero': {
+      cfg.labelType = cfg.type==='alphabet'?'alpha':cfg.type==='roman'?'roman':'leadzero';
+      nav.appendChild(prev());
+      appendPageButtons(getPageList(cfg.current, cfg.total, 1, cfg.total<=7?cfg.total:1));
+      nav.appendChild(next());
+      break;
+    }
+    case 'stepper': {
+      nav.classList.add('pg-stepper');
+      for(let i=1;i<=cfg.total;i++){
+        const item = document.createElement('div');
+        item.className='step-item'+(i===cfg.current?' active':i<cfg.current?' done':'');
+        const circle = document.createElement('button');
+        circle.className='step-circle'; circle.textContent = i<cfg.current?'✓':i;
+        circle.setAttribute('aria-label','Step '+i); circle.addEventListener('click',()=>goTo(i));
+        const label = document.createElement('span'); label.className='step-label'; label.textContent='Step '+i;
+        item.appendChild(circle); item.appendChild(label);
+        nav.appendChild(item);
+        if(i<cfg.total){ const line=document.createElement('div'); line.className='step-line'+(i<cfg.current?' done':''); nav.appendChild(line); }
+      }
+      break;
+    }
+    case 'timeline': {
+      nav.classList.add('pg-timeline');
+      const track = document.createElement('div'); track.className='tl-track'; nav.appendChild(track);
+      for(let i=1;i<=cfg.total;i++){
+        const item = document.createElement('button');
+        item.className='tl-item'+(i===cfg.current?' active':'');
+        item.style.background='none'; item.style.border='none';
+        item.innerHTML = '<span class="tl-dot"></span><span class="tl-label">Pg '+i+'</span>';
+        item.setAttribute('aria-label','Page '+i);
+        item.addEventListener('click',()=>goTo(i));
+        nav.appendChild(item);
+      }
+      break;
+    }
+    case 'dot': {
+      nav.classList.add('pg-dots');
+      for(let i=1;i<=cfg.total;i++){
+        const d = document.createElement('button');
+        d.className='dot-item'+(i===cfg.current?' active':'');
+        d.setAttribute('aria-label','Go to page '+i);
+        d.addEventListener('click',()=>goTo(i));
+        nav.appendChild(d);
+      }
+      break;
+    }
+    case 'tablefooter': {
+      nav.classList.add('pg-tablefooter');
+      const info = document.createElement('span'); info.className='tf-info';
+      const start = (cfg.current-1)*cfg.rowsPerPage+1;
+      const end = Math.min(cfg.current*cfg.rowsPerPage, cfg.totalRecords);
+      info.innerHTML = 'Showing <b>'+start+'–'+end+'</b> of <b>'+cfg.totalRecords+'</b>';
+      const right = document.createElement('div'); right.style.display='flex'; right.style.alignItems='center'; right.style.gap='8px';
+      const select = document.createElement('select'); select.className='tf-select'; select.setAttribute('aria-label','Rows per page');
+      [10,25,50].forEach(v=>{ const o=document.createElement('option'); o.value=v; o.textContent=v+' / page'; if(v===cfg.rowsPerPage) o.selected=true; select.appendChild(o); });
+      select.addEventListener('change', ()=>{ cfg.rowsPerPage=parseInt(select.value,10); cfg.current=1; rerender(); });
+      const inner = document.createElement('span'); inner.className='pagination skin-'+cfg.skin;
+      const p2 = prev(); const n2 = next();
+      inner.appendChild(p2);
+      getPageList(cfg.current, cfg.total, 1, 1).forEach(item=>{
+        if(item==='...'){ const s=document.createElement('span'); s.className='pg-ellipsis'; s.textContent='···'; inner.appendChild(s); }
+        else inner.appendChild(makeBtn(String(item), {active:item===cfg.current, aria:'Page '+item, onClick:()=>goTo(item)}));
+      });
+      inner.appendChild(n2);
+      right.appendChild(select); right.appendChild(inner);
+      nav.appendChild(info); nav.appendChild(right);
+      break;
+    }
+    default: {
+      nav.appendChild(prev()); appendPageButtons(getPageList(cfg.current, cfg.total, 1, 1)); nav.appendChild(next());
+    }
+  }
+
+  nav.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight') goTo(cfg.current+1);
+    if(e.key==='ArrowLeft') goTo(cfg.current-1);
+  });
+
+  return nav;
+}
+
+/* ============================================================
+   7. CODE SNIPPET GENERATORS (Copy HTML / CSS / JS / Complete)
+   ============================================================ */
+const SKIN_CSS = {
+standard:`.skin-standard .pg-btn{border-radius:8px;}`,
+rounded:`.skin-rounded .pg-btn{border-radius:16px;}`,
+square:`.skin-square .pg-btn{border-radius:0;box-shadow:0 2px 6px rgba(0,0,0,.15);}`,
+pill:`.skin-pill .pg-btn{border-radius:999px;padding:0 14px;}
+.skin-pill .pg-btn.active{box-shadow:0 8px 20px rgba(109,93,252,.3);}`,
+outline:`.skin-outline .pg-btn{background:transparent;border:1.5px solid #ddd;}
+.skin-outline .pg-btn.active{background:transparent;border-color:#6D5DFC;color:#6D5DFC;}`,
+filled:`.skin-filled .pg-btn{background:#f1f0fa;border-color:transparent;}
+.skin-filled .pg-btn.active{background:#6D5DFC;color:#fff;}`,
+minimal:`.skin-minimal .pg-btn{background:transparent;border-color:transparent;}
+.skin-minimal .pg-btn.active{color:#6D5DFC;border-bottom:2px solid #6D5DFC;border-radius:2px;}`,
+elevated:`.skin-elevated .pg-btn{box-shadow:0 6px 14px rgba(109,93,252,.25);border-color:transparent;}`,
+gradient:`.skin-gradient .pg-btn.active{background:linear-gradient(120deg,#6D5DFC,#37D9C4);}`,
+glass:`.skin-glass .pg-btn{background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border-color:rgba(255,255,255,.25);}
+.skin-glass .pg-btn.active{background:rgba(255,255,255,.28);}`,
+neumorphism:`.skin-neumorphism{background:#e8e6f3;padding:10px;border-radius:16px;}
+.skin-neumorphism .pg-btn{background:#e8e6f3;border:none;box-shadow:5px 5px 10px rgba(0,0,0,.12),-5px -5px 10px rgba(255,255,255,.7);}
+.skin-neumorphism .pg-btn.active{box-shadow:inset 3px 3px 8px rgba(0,0,0,.15),inset -3px -3px 8px rgba(255,255,255,.6);color:#6D5DFC;}`,
+cyberpunk:`.skin-cyberpunk{background:#0a0014;padding:10px;border-radius:6px;}
+.skin-cyberpunk .pg-btn{background:transparent;border:1px solid #ff2ec4;color:#ff2ec4;border-radius:2px;text-shadow:0 0 6px #ff2ec4;}
+.skin-cyberpunk .pg-btn.active{background:#00fff2;color:#0a0014;border-color:#00fff2;box-shadow:0 0 16px #00fff2;text-shadow:none;}`,
+ios:`.skin-ios{background:rgba(120,120,128,.14);padding:4px;border-radius:10px;gap:2px;}
+.skin-ios .pg-btn{border:none;background:transparent;border-radius:8px;}
+.skin-ios .pg-btn.active{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);}`,
+saas:`.skin-saas .pg-btn.active{background:#6D5DFC;color:#fff;}`,
+analytics:`.skin-analytics{background:rgba(0,0,0,.15);padding:8px 10px;border-radius:10px;}
+.skin-analytics .pg-btn.active{background:#37D9C4;color:#062;}`,
+crm:`.skin-crm .pg-btn.active{background:#FF8A3D;color:#fff;}`,
+admin:`.skin-admin .pg-btn{border-radius:6px;}`,
+records:`.skin-records .pg-btn.active{background:#2FBF71;color:#fff;}`
+};
+const BASE_CSS = `.pagination{display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;font-family:Inter,sans-serif;}
+.pg-btn{min-width:34px;height:34px;padding:0 10px;border-radius:9px;border:1px solid #ddd;background:#f8f8fb;color:#555;font-size:13.5px;font-weight:600;cursor:pointer;transition:.2s;}
+.pg-btn:hover:not(:disabled){transform:translateY(-2px);border-color:#6D5DFC;}
+.pg-btn:disabled{opacity:.35;cursor:not-allowed;}
+.pg-btn.active{background:#6D5DFC;color:#fff;border-color:transparent;}
+.pg-ellipsis{min-width:28px;text-align:center;color:#999;}
+.pg-meta{font-size:12.5px;color:#888;margin:0 8px;}`;
+
+function jsSnippetFor(cfg){
+  return `// Minimal vanilla-JS pagination controller for "${cfg.name}"
+function createPagination(container, { total, current = 1, onChange }) {
+  function render() {
+    container.innerHTML = '';
+    const prev = button('‹', current === 1, () => update(current - 1));
+    const next = button('›', current === total, () => update(current + 1));
+    container.appendChild(prev);
+    getPageList(current, total).forEach(p => {
+      if (p === '...') { container.appendChild(ellipsis()); return; }
+      container.appendChild(button(String(p), false, () => update(p), p === current));
+    });
+    container.appendChild(next);
+  }
+  function update(page) {
+    current = Math.max(1, Math.min(total, page));
+    render();
+    onChange && onChange(current);
+  }
+  function button(label, disabled, onClick, active) {
+    const b = document.createElement('button');
+    b.className = 'pg-btn' + (active ? ' active' : '');
+    b.textContent = label;
+    b.disabled = disabled;
+    b.addEventListener('click', onClick);
+    return b;
+  }
+  function ellipsis() {
+    const s = document.createElement('span');
+    s.className = 'pg-ellipsis'; s.textContent = '···';
+    return s;
+  }
+  function getPageList(cur, total, delta = 1, edge = 1) {
+    const range = [];
+    for (let i = 1; i <= total; i++) {
+      if (i <= edge || i > total - edge || (i >= cur - delta && i <= cur + delta)) range.push(i);
+      else if (range[range.length - 1] !== '...') range.push('...');
+    }
+    return range;
+  }
+  render();
+  return { goTo: update };
+}
+
+// Usage:
+createPagination(document.querySelector('#pagination-root'), {
+  total: ${cfg.total},
+  current: ${cfg.current},
+  onChange: (page) => console.log('Now on page', page)
+});`;
+}
+
+function htmlSnippetFor(cfg, liveEl){
+  return `<nav class="pagination skin-${cfg.skin}" aria-label="${cfg.name} pagination">
+${liveEl.innerHTML.split('\n').map(l=>'  '+l).join('\n')}
+</nav>`;
+}
+
+function cssSnippetFor(cfg){
+  return BASE_CSS + '\n\n' + (SKIN_CSS[cfg.skin]||'');
+}
+
+function completeSnippetFor(cfg, liveEl){
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+${cssSnippetFor(cfg)}
+</style>
+</head>
+<body>
+${htmlSnippetFor(cfg, liveEl)}
+<script>
+${jsSnippetFor(cfg)}
+<\/script>
+</body>
+</html>`;
+}
+
+/* ============================================================
+   8. COMPONENT CATALOG (30 unique pagination components)
+   ============================================================ */
+const COMPONENTS = [
+{id:'std', name:'Standard', desc:'The clean numbered baseline every other style riffs on.', cats:['Basic'], type:'numbered', skin:'standard', total:5, current:3},
+{id:'prevnext', name:'Previous / Next', desc:'Arrows only — ideal for linear reading flows.', cats:['Basic','Minimal'], type:'prevnext', skin:'minimal', total:8, current:4},
+{id:'firstlast', name:'First · Prev · Next · Last', desc:'Full jump controls for long lists.', cats:['Basic'], type:'firstlast', skin:'standard', total:9, current:5},
+{id:'rounded', name:'Rounded', desc:'Soft 16px corners for a friendlier feel.', cats:['Basic'], type:'numbered', skin:'rounded', total:5, current:2},
+{id:'square', name:'Square', desc:'Sharp edges, elevated shadow — editorial tone.', cats:['Basic'], type:'numbered', skin:'square', total:5, current:1},
+{id:'pill', name:'Pill', desc:'Fully rounded capsule buttons with glow on active.', cats:['Basic'], type:'numbered', skin:'pill', total:6, current:4},
+{id:'outline', name:'Outline', desc:'Border-only buttons, transparent background.', cats:['Basic','Minimal'], type:'numbered', skin:'outline', total:5, current:3},
+{id:'filled', name:'Filled', desc:'Soft filled surface for every button, not just active.', cats:['Basic'], type:'numbered', skin:'filled', total:5, current:2},
+{id:'ellipsis', name:'Ellipsis', desc:'Smart windowing collapses distant pages behind “···”.', cats:['Advanced'], type:'ellipsis', skin:'standard', total:24, current:12},
+{id:'doubleellipsis', name:'Double Ellipsis', desc:'Two anchor pages on each edge for extra orientation.', cats:['Advanced'], type:'doubleellipsis', skin:'rounded', total:40, current:20},
+{id:'jump', name:'Jump to Page', desc:'Type a page number and go straight there.', cats:['Advanced'], type:'jump', skin:'outline', total:60, current:14},
+{id:'skip10', name:'Skip ±10', desc:'Fast travel across huge datasets ten pages at a time.', cats:['Advanced'], type:'skip10', skin:'filled', total:120, current:45},
+{id:'compact', name:'Compact', desc:'A single pill: “Page X of Y” — for tight spaces.', cats:['Advanced','Minimal'], type:'compact', skin:'minimal', total:14, current:6},
+{id:'expandable', name:'Expandable', desc:'Collapsed by default; “More…” reveals the full range.', cats:['Advanced'], type:'expandable', skin:'standard', total:30, current:9},
+{id:'alphabet', name:'Alphabet', desc:'Pages labelled A–J — perfect for glossaries and directories.', cats:['Alphabet'], type:'alphabet', skin:'outline', total:10, current:3},
+{id:'roman', name:'Roman Numerals', desc:'Classical numeral labels for print-style navigation.', cats:['Roman'], type:'roman', skin:'square', total:7, current:4},
+{id:'leadzero', name:'Leading Zero', desc:'01, 02, 03 — a tidy monospace-friendly numbering style.', cats:['Minimal'], type:'leadzero', skin:'minimal', total:9, current:5},
+{id:'stepper', name:'Stepper', desc:'Progress-driven navigation for multi-step flows.', cats:['Stepper'], type:'stepper', skin:'standard', total:5, current:3},
+{id:'timeline', name:'Timeline', desc:'A connected track of stops, ideal for chaptered content.', cats:['Stepper'], type:'timeline', skin:'standard', total:6, current:4},
+{id:'dot', name:'Dot Indicator', desc:'Carousel-style dots — the active one stretches into a pill.', cats:['Dots','Minimal'], type:'dot', skin:'standard', total:7, current:3},
+{id:'saas', name:'SaaS Table Footer', desc:'Records summary plus rows-per-page, ready for any data table.', cats:['Dashboard','Table'], type:'tablefooter', skin:'saas', total:12, current:2, rowsPerPage:10, totalRecords:118},
+{id:'analytics', name:'Analytics Dashboard', desc:'Dark, dense footer styled for metrics-heavy interfaces.', cats:['Dashboard','Table'], type:'tablefooter', skin:'analytics', total:9, current:4, rowsPerPage:25, totalRecords:212},
+{id:'crm', name:'CRM Compact', desc:'A tight “Page X of Y” pill tuned for CRM record lists.', cats:['Dashboard','Minimal'], type:'compact', skin:'crm', total:16, current:7},
+{id:'admin', name:'Admin Panel', desc:'Dense, neutral numbering for internal admin tooling.', cats:['Dashboard'], type:'numbered', skin:'admin', total:8, current:5},
+{id:'records', name:'Records Navigation', desc:'Table footer tuned for exports and record management.', cats:['Dashboard','Table'], type:'tablefooter', skin:'records', total:20, current:9, rowsPerPage:50, totalRecords:964},
+{id:'gradientc', name:'Gradient', desc:'Active state rides an animated two-tone gradient.', cats:['Creative','Gradient'], type:'numbered', skin:'gradient', total:6, current:4},
+{id:'glassc', name:'Glass', desc:'Frosted, translucent buttons that pick up the backdrop.', cats:['Creative','Glass'], type:'numbered', skin:'glass', total:6, current:2},
+{id:'neumorphismc', name:'Neumorphism', desc:'Soft embossed surface with dual-direction shadows.', cats:['Creative'], type:'numbered', skin:'neumorphism', total:5, current:3},
+{id:'cyberpunkc', name:'Cyberpunk Neon', desc:'Magenta and cyan glow on a near-black surface.', cats:['Creative','Gradient'], type:'numbered', skin:'cyberpunk', total:5, current:3},
+{id:'iosc', name:'iOS Segmented', desc:'A sliding, San-Francisco-styled segmented control.', cats:['Creative'], type:'numbered', skin:'ios', total:4, current:2},
+];
+
+/* ============================================================
+   9. GALLERY RENDERING, FILTER BAR, SEARCH, CODE PANELS
+   ============================================================ */
+const ALL_CATS = ['All','Basic','Advanced','Dashboard','Creative','Minimal','Glass','Gradient','Dots','Alphabet','Roman','Stepper','Table'];
+let activeCat = 'All';
+let searchTerm = '';
+
+function buildFilterBar(){
+  const bar = document.getElementById('filterBar');
+  bar.innerHTML='';
+  ALL_CATS.forEach(cat=>{
+    const chip = document.createElement('button');
+    chip.className = 'chip'+(cat===activeCat?' active':'');
+    chip.textContent = cat;
+    chip.addEventListener('click', ()=>{ activeCat=cat; buildFilterBar(); renderGallery(); });
+    bar.appendChild(chip);
+  });
+}
+
+function matchesFilter(cfg){
+  const catOk = activeCat==='All' || cfg.cats.includes(activeCat);
+  const term = searchTerm.trim().toLowerCase();
+  const searchOk = !term || cfg.name.toLowerCase().includes(term) || cfg.desc.toLowerCase().includes(term);
+  return catOk && searchOk;
+}
+
+function buildCard(cfg){
+  const card = document.createElement('div');
+  card.className='card';
+  card.innerHTML = `
+    <div class="card-head">
+      <div><h3>${cfg.name}</h3><p>${cfg.desc}</p></div>
+      <span class="card-badge">${cfg.cats[0]}</span>
+    </div>
+    <div class="preview-box" id="preview-${cfg.id}"></div>
+    <div class="card-actions">
+      <button class="copy-btn" data-copy="html">HTML</button>
+      <button class="copy-btn" data-copy="css">CSS</button>
+      <button class="copy-btn" data-copy="js">JS</button>
+      <button class="copy-btn full" data-copy="complete">Copy Complete Component</button>
+    </div>
+    <button class="expand-btn" data-expand>▾ View code</button>
+    <div class="code-preview" id="code-${cfg.id}"><pre><code></code></pre></div>
+  `;
+
+  const previewHost = card.querySelector('#preview-'+cfg.id);
+  const liveEl = renderPagination(cfg);
+  previewHost.appendChild(liveEl);
+
+  card.querySelectorAll('[data-copy]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const currentLive = previewHost.querySelector('.pagination') || liveEl;
+      const kind = btn.dataset.copy;
+      if(kind==='html') copyText(htmlSnippetFor(cfg, currentLive), 'HTML');
+      if(kind==='css') copyText(cssSnippetFor(cfg), 'CSS');
+      if(kind==='js') copyText(jsSnippetFor(cfg), 'JS');
+      if(kind==='complete') copyText(completeSnippetFor(cfg, currentLive), 'Complete component');
+    });
+  });
+
+  const expandBtn = card.querySelector('[data-expand]');
+  const codeBox = card.querySelector('#code-'+cfg.id);
+  expandBtn.addEventListener('click', ()=>{
+    const opening = !codeBox.classList.contains('open');
+    if(opening){
+      const currentLive = previewHost.querySelector('.pagination') || liveEl;
+      const full = completeSnippetFor(cfg, currentLive);
+      codeBox.querySelector('code').innerHTML = highlight(full, 'html');
+      codeBox.classList.add('open');
+      expandBtn.textContent = '▴ Hide code';
+      gsap.from(codeBox, {height:0, opacity:0, duration:.35, ease:'power2.out'});
+    } else {
+      codeBox.classList.remove('open');
+      expandBtn.textContent = '▾ View code';
+    }
+  });
+
+  return card;
+}
+
+function renderGallery(){
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+  const visible = COMPONENTS.filter(matchesFilter);
+  if(visible.length===0){
+    gallery.innerHTML = '<p style="color:var(--text-faint);grid-column:1/-1;text-align:center;padding:40px 0;">No components match your search.</p>';
+    return;
+  }
+  visible.forEach(cfg=> gallery.appendChild(buildCard(cfg)));
+  gsap.from(gallery.querySelectorAll('.card'), {y:24, opacity:0, duration:.5, stagger:.04, ease:'power3.out'});
+}
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  searchTerm = e.target.value;
+  renderGallery();
+});
+
+buildFilterBar();
+renderGallery();
+
+/* ============================================================
+   10. README / LICENSE DOWNLOADS (Blob URLs)
+   ============================================================ */
+const README = `# Paginate — Premium Pagination Component Library
+
+A single-file, dependency-free (besides GSAP via CDN and Google Fonts) HTML
+component library containing 30 distinct, fully interactive pagination
+patterns across Basic, Advanced/Large-dataset, Alternative-label, Dashboard
+and Creative categories.
+
+## Usage
+Open index.html in any modern browser. Use the search box and category
+chips to filter the gallery. Every card has:
+- A live, interactive preview (working prev/next, active/disabled states,
+  keyboard arrow-key navigation, ARIA labels)
+- Copy HTML / Copy CSS / Copy JS / Copy Complete Component buttons
+- An expandable, syntax-highlighted code view
+
+## Theming
+Toggle light/dark mode from the navbar. Preference is stored in
+localStorage and restored on reload.
+
+## Accessibility
+- Semantic <nav> with aria-label per component
+- aria-current="page" on the active page button
+- Disabled state via native disabled attribute
+- Visible focus rings (:focus-visible)
+- Left/Right arrow key navigation within each pagination control
+- prefers-reduced-motion respected
+
+## License
+MIT — see LICENSE.txt.
+`;
+
+const LICENSE = `MIT License
+
+Copyright (c) ${new Date().getFullYear()} Paginate Component Library
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to
+deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+sell copies of the Software, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+DEALINGS IN THE SOFTWARE.
+`;
+
+document.getElementById('dlReadme').addEventListener('click', ()=> downloadBlob('README.md', README, 'text/markdown'));
+document.getElementById('dlLicense').addEventListener('click', ()=> downloadBlob('LICENSE.txt', LICENSE, 'text/plain'));
+document.getElementById('dlReadme2').addEventListener('click', ()=> downloadBlob('README.md', README, 'text/markdown'));
+document.getElementById('dlLicense2').addEventListener('click', ()=> downloadBlob('LICENSE.txt', LICENSE, 'text/plain'));
+</script>
+</body>
+</html>
