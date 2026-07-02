@@ -1,61 +1,54 @@
-
-
-
 # Paginate - Spell Quick. Think Quicker.
 
-[![GitHub stars](https://img.shields.io/github/stars/Darshittank/LexigoTrix)](https://github.com/Darshittank/LexigoTrix/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/Darshittank/LexigoTrix)](https://github.com/Darshittank/LexigoTrix/network)
-[![GitHub issues](https://img.shields.io/github/issues/Darshittank/LexigoTrix)](https://github.com/Darshittank/LexigoTrix/issues)
+[![GitHub stars](https://img.shields.io/github/stars/Darshittank/LexigoTrix)](https://github.com/Darshittank/Paginate/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/Darshittank/LexigoTrix)](https://github.com/Darshittank/Paginate/network)
+[![GitHub issues](https://img.shields.io/github/issues/Darshittank/LexigoTrix)](https://github.com/Darshittank/Paginate/issues)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Play Online](https://img.shields.io/badge/Play-Now-brightgreen)](https://darshittank.github.io/LexigoTrix)
+[![View Online](https://img.shields.io/badge/Play-Now-brightgreen)](https://darshittank.github.io/Paginate)
 
 ## 🎯 **Live Demo**
-👉 **[Play LexigoTrix Online Now!](https://darshittank.github.io/LexigoTrix)** 👈
+👉 **[View Paginate Online Now!](https://darshittank.github.io/Paginate/)** 👈
 
-## 📖 **About LexigoTrix**
+## 📖 **About Paginate**
 
-Well-designed pagination improves usability by making content easy to navigate without overload. This collection includes 30 production-ready patterns for basic sites, large datasets, dashboards, and creative UIs—each interactive, accessible, themeable, and ready to copy-paste for fast, modern development.
+Well-designed pagination improves usability by making content easy to navigate without overload. This collection includes 30 production-ready pagination patterns for basic websites, large datasets, dashboards, and creative interfaces.
+
+Each pattern is interactive, accessible, themeable, and copy-paste ready—helping you build faster while maintaining modern UI standards.
 
 ### 🎯 **Key Features**
-- ⚡ **Fast-paced gameplay** - Race against the clock
-- 🧠 **Brain training** - Improve vocabulary & memory
-- 🎮 **Progressive difficulty** - Challenging levels
-- 👨‍👩‍👧‍👦 **Family-friendly** - Suitable for ages 8+
-- 📱 **Responsive design** - Play on any device
-- 🏆 **Score system** - Track your progress
-- 🔄 **Endless replayability** - New challenges every time
+🔢 30 ready-to-use pagination patterns
+⚡ Fully interactive components
+🧩 Dark Light Mode
+♿ Accessibility-friendly (ARIA support)
+🎨 Easy to customize & theme
+📱 Responsive across all devices
+🧩 Works with modern UI workflows
+📋 Clean, copy-paste-ready code
 
 ## 📸 Preview
 
 ![Preview](assets/screenshot_1.png)
 
-## 🎮 **How to Play**
+📦 Use Cases
+Basic websites & blogs
+Large data tables
+Admin dashboards
+SaaS applications
+Creative UI designs
+🚀 Getting Started
+Browse the collection
+Copy your preferred pagination pattern
+Paste into your project
+Customize styles as needed
+🎯 Goal
 
-1. **Form Words** - Use the given letters to create valid English words
-2. **Score Points** - Longer words = higher scores
-3. **Beat the Clock** - Complete words before time runs out
-4. **Level Up** - Every 100 points unlocks a new level
-5. **Bonus Time** - Leveling up adds extra seconds
+To provide developers and designers with scalable, modern, and efficient pagination solutions that save time and improve user experience.
 
-[![Play Online](https://img.shields.io/badge/Play-Now-brightgreen)](https://darshittank.github.io/LexigoTrix)
+🤝 Contributing
 
-### 📊 **Scoring System**
+Contributions are welcome! Feel free to submit new patterns, improvements, or bug fixes.
 
-| Word Length | Base Points | Time Bonus | Total Potential |
-|-------------|-------------|------------|-----------------|
-| 3 letters   | 30          | +0-20      | 30-50          |
-| 4 letters   | 40          | +0-20      | 40-60          |
-| 5 letters   | 50          | +0-20      | 50-70          |
-| 6+ letters  | 60+         | +0-20      | 60-80+         |
-
-## 🛠️ **Technologies Used**
-
-- **HTML5** - Semantic structure
-- **CSS3** - Modern animations & responsive design
-- **JavaScript (ES6+)** - Game logic & interactivity
-- **LocalStorage API** - Save high scores (coming soon)
-
-![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black) ![LocalStorage](https://img.shields.io/badge/LocalStorage-FFB13B?style=flat&logo=localstack&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat&logo=css3&logoColor=white) ![JS](https://img.shields.io/badge/JS-F7DF1E?style=flat&logo=javascript&logoColor=black) ![GSAP](https://img.shields.io/badge/GSAP-88CE02?style=flat&logo=greensock&logoColor=white)
 
 ## 🙌 Author
 
@@ -65,7 +58,7 @@ Well-designed pagination improves usability by making content easy to navigate w
 
 If you like this project, please give it a ⭐ on GitHub! It helps others discover it too.
 
-Made with ❤️ and lots of LexigoTrix!
+Made with ❤️ and lots of Paginate!
 
 ## 🚀 **Installation**
 
@@ -73,7 +66,7 @@ Made with ❤️ and lots of LexigoTrix!
 
 ```bash
 # Clone the repository
-git clone https://github.com/Darshittank/LexigoTrix.git
+git clone https://github.com/Darshittank/Paginate.git
 
 # Navigate to project directory
 cd LexigoTrix
